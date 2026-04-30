@@ -17,12 +17,22 @@ def connectionVerify():
     cursor.execute("SELECT version()")
     print(cursor.fetchone())
 
-class User:
-    # Class for creating/getting user
-    pass
+class createUser:
+    def __init__(self):
+        self.first_name = input('Please enter your first name: \n')
+        self.last_name = input('Please enter your last name: \n')
+
+
+    def getName(self):
+        print(f'Welcome {self.first_name} {self.last_name}!')
+        cur = conn.cursor()
+        cur.execute("INSERT INTO bank.users (first_name, last_name) VALUES (%s, %s)", (self.first_name, self.last_name))
+        conn.commit()
+
 
 class Account:
     # Class for getting account information
     pass
 
-connectionVerify()
+zach = createUser()
+zach.getName()

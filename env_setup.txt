@@ -1,0 +1,40 @@
+How to hide your database password from GitHub
+================================================
+
+1. Install python-dotenv
+------------------------
+pip install python-dotenv
+
+
+2. Create a .env file in your project root
+------------------------------------------
+DB_HOST=localhost
+DB_NAME=your_db
+DB_USER=your_user
+DB_PASSWORD=your_password
+
+
+3. Add .env to .gitignore (keeps it off GitHub)
+------------------------------------------------
+echo ".env" >> .gitignore
+
+
+4. Load the .env variables in your Python code
+-----------------------------------------------
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+conn = psycopg2.connect(
+    host=os.getenv("DB_HOST"),
+    database=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD")
+)
+
+
+IMPORTANT: The .gitignore step is critical. Without it, your .env file
+will be pushed to GitHub and your password will be exposed.
+
+To verify .env is ignored, run "git status" and confirm .env does not appear.
