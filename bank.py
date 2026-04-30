@@ -19,14 +19,16 @@ def connectionVerify():
 
 class createUser:
     def __init__(self):
+        pass
+
+    def userMake(self):
         self.first_name = input('Please enter your first name: \n')
         self.last_name = input('Please enter your last name: \n')
-
-
-    def getName(self):
         print(f'Welcome {self.first_name} {self.last_name}!')
+        self.username = input('Pick a username: \n')
+        self.password = input('Pick a password: \n')
         cur = conn.cursor()
-        cur.execute("INSERT INTO bank.users (first_name, last_name) VALUES (%s, %s)", (self.first_name, self.last_name))
+        cur.execute("INSERT INTO bank.users (first_name, last_name, username, passwrd) VALUES (%s, %s, %s, %s)", (self.first_name, self.last_name, self.username, self.password))
         conn.commit()
 
 
@@ -35,4 +37,4 @@ class Account:
     pass
 
 zach = createUser()
-zach.getName()
+zach.userMake()
