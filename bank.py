@@ -28,9 +28,10 @@ class createUser:
         self.username = input('Pick a username: \n')
         self.password = input('Pick a password: \n')
         cur = conn.cursor()
-        cur.execute("INSERT INTO bank.users (first_name, last_name, username, passwrd) VALUES (%s, %s, %s, %s)", (self.first_name, self.last_name, self.username, self.password))
+        sql = "INSERT INTO bank.users (first_name, last_name, username, passwrd) VALUES (%s, %s, %s, %s);"
+        data = (self.first_name, self.last_name, self.username, self.password)
+        cur.execute(sql, data)
         conn.commit()
-
 
 class Account:
     # Class for getting account information
