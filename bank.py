@@ -4,38 +4,69 @@ import os
 
 load_dotenv()
 
+# Establish the connection to the DB. The variables here will pull from the .env file
 conn = psycopg2.connect(
     host=os.getenv("DB_HOST"),
     database=os.getenv("DB_NAME"),
     user=os.getenv("DB_USER"),
     password=os.getenv("DB_PASSWORD")
 )
-
+# Function for testing connection to database
 def connectionVerify():
     print("Connection successful!")
     cursor = conn.cursor()
     cursor.execute("SELECT version()")
     print(cursor.fetchone())
-
+# Class used for creating users.
 class createUser:
     def __init__(self):
         pass
 
-    def userMake(self):
-        self.first_name = input('Please enter your first name: \n')
-        self.last_name = input('Please enter your last name: \n')
+    def userMake(self): # Creates a user
+        self.first_name = input('Please enter your first name: \n') # Saving as first name
+        self.last_name = input('Please enter your last name: \n') # Saving as last name
         print(f'Welcome {self.first_name} {self.last_name}!')
-        self.username = input('Pick a username: \n')
-        self.password = input('Pick a password: \n')
-        cur = conn.cursor()
-        sql = "INSERT INTO bank.users (first_name, last_name, username, passwrd) VALUES (%s, %s, %s, %s);"
-        data = (self.first_name, self.last_name, self.username, self.password)
-        cur.execute(sql, data)
+        
+        self.username = input('Pick a username: \n') # Pick username, save it as username
+        self.password = input('Pick a password: \n') # Pick password, save it as password
+        cur = conn.cursor() # Create a cursor using psycopg2
+        sql_user = "INSERT INTO bank.users (first_name, last_name, username, pwd) VALUES (%s, %s, %s, %s) RETURNING id;" # Entering all the collected variables into the db
+        data_user = (self.first_name, self.last_name, self.username, self.password) # Passing in the variables separately.
+        # If I read the psycopg2 docs right, this is the safest way to do this.
+        cur.execute(sql_user, data_user) # Executing
+        user_id = cur.fetchone()[0] # Grabbing the id since I made it SERIAL primary key
+
+        sql_account = "INSERT INTO bank.accounts (user_id, account_type, balance) VALUES (%s, %s, %s);" # Also setting up user on the accounts table
+        data_account = (user_id, "Checking", 0) # passing in the previously retrieved Id to pass in as FK. For now just making this checking for $0
+        cur.execute(sql_account, data_account)
+
         conn.commit()
+
+class logIn:
+    def __init__(self):
+        pass
+
+    def getUser(self):
+        u = input('Please enter your username: \n')
+        p = input('Please enter your password: \n')
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT id from bank.users where username = %s;', (u, ))
+            self.userId = cur.fetchone()[0] #Getting the id by username
+            
+            cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
+            self.userpass = cur.fetchone()[0] # Getting the id by password
+
+            if self.userpass == self.userId: # If password and username are on the same row they should have the same Id
+                print('\nWelcome back!') 
+
+        except:
+            print('\nUsername and password not found.')
+
 
 class Account:
     # Class for getting account information
     pass
 
-zach = createUser()
-zach.userMake()
+zach = logIn()
+zach.getUser()
