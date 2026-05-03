@@ -58,34 +58,36 @@ def logIn():
             if result:
                 print('Login Successful!')
                 return User(result[0], result[1], result[2], result[3])
-
+                #Login successful so the id, username, first_name, last_name are being passed to the User class
             else:
                 print('Username or password incorrect. Please try again.')
-        except Exception as e:
+        except Exception as e: #If there is a SQL error, let's print it.
             print(e)
-
-class User:
+# Create an instance of user with the following attributes
+class User: 
     def __init__(self, user_id, username, first_name, last_name):
         self.user_id = user_id
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
-
+# Create an instance of account for the customer to interact with
 class Account:
     def __init__(self, user_id):
         self.user_id = user_id
-
+    # Grabbing all the accounts associated with the user
     def getAccounts(self):
         cur = conn.cursor()
         account_query = 'SELECT id, account_type, balance FROM bank.accounts WHERE user_id = %s;'
         data = (self.user_id, )
         cur.execute(account_query, data)
-        accounts = cur.fetchone()
+        accounts = cur.fetchall()
+        cur.close()
         return accounts
 
     def newAccount(self, user_id):
         self.user_id = user_id
         cur = conn.cursor()
+        # Prompting user to select what account they want
         while True:
             account_type = input('Select account type: \n \
                 1. Checking \n \
@@ -107,18 +109,26 @@ class Account:
         data_account = (user_id, account_type, 0) # passing in the previously retrieved Id to pass in as FK. For now just making this checking for $0
         cur.execute(sql_account, data_account)
         conn.commit()
+        cur.close()
 
-    def getBalance(self, account_id, accounts):
+    def getBalance(self, accounts):
         # Need to add ability to select from all accounts associated with customer
-        account_type = accounts[1]
-        account_amount = accounts[2]
-
-        print(f'Your {account_type} account balance is {account_amount}.')
+        self.accounts = accounts
+       # iterating over the accounts to print them all to the user.
+        for account in accounts:
+            print(f'{account[1]}: ${account[2]}')
 
     def updateBalance(self, accounts, amount):
         # Need to add ability for customer to select what account they're updating
         cur = conn.cursor()
-        account_id = accounts[0]
+        
+        print('\nSelect an account:')
+        for i, account in enumerate(accounts):
+            print(f'{i + 1}. {account[1]}')
+    
+        selection = int(input('> ')) - 1
+        account_id = accounts[selection][0]
+
         balance = 'SELECT sum(amount) FROM bank.transactions WHERE account_id = %s;'
         cur.execute(balance, (account_id, ))
         current_balance = cur.fetchone()[0] or 0 # Return 0 if nothing found for account
@@ -140,12 +150,19 @@ class Account:
         cur.close()
         
     def deposit(self, accounts):
-        amount = float(input('How much are you depositing? \n > '))
+        try:
+            amount = float(input('How much are you depositing? \n > '))
+        except ValueError:
+            print('Please enter a valid number.')
+            return
         self.updateBalance(accounts, amount)
-        
 
     def withdraw(self, accounts):
-        amount = float('-' + input('How much are you withdrawing? \n > '))
+        try:
+            amount = float('-' + input('How much are you withdrawing? \n > '))
+        except ValueError:
+            print('Please enter a valid number.')
+            return
         self.updateBalance(accounts, amount)
 
 def accountMenu(current_user):
@@ -171,6 +188,7 @@ def accountMenu(current_user):
             accounts = useraccount.getAccounts()
         elif function_select == '4':
             useraccount.newAccount(current_user.user_id)
+            accounts = useraccount.getAccounts()
         elif function_select == '5':
             break
         else:
@@ -200,8 +218,3 @@ def cli():
             print('Invalid selection.')
 
 cli()
-
-# Things To Do
-# 1. Input validation on the deposit/withdraw amounts
-# 2. Login failure handling X
-# 3. Add ability for users to create new accounts (ie, additional checking or savings)
