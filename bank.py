@@ -59,19 +59,45 @@ def logIn():
             return User(result[0], result[1], result[2], result[3])
 
         cur.close()
-        conn.close()
+
     except:
         print('Username and password not found.')
 
 class User:
-    def __init__(self, id, username, first_name, last_name):
-        self.id = id
+    def __init__(self, user_id, username, first_name, last_name):
+        self.user_id = user_id
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
 
 class Account:
-    # Class for getting account information
-    pass
+    def __init__(self, user_id):
+        self.user_id = user_id
 
-logIn()
+    def getAccounts(self):
+        cur = conn.cursor()
+        account_query = 'SELECT account_type, balance FROM bank.accounts WHERE user_id = %s;'
+        data = (self.user_id, )
+        cur.execute(account_query, data)
+        accounts = cur.fetchone()
+        return accounts
+
+    def getBalance(self, accounts):
+        account_type = accounts[0]
+        account_amount = accounts[1]
+
+        print(f'Your {account_type} account balance is {account_amount}.')
+
+    def deposit():
+        def __init__(self, accounts):
+            pass
+
+
+    def withdraw():
+        def __init__(self):
+            pass
+
+current_user = logIn()
+useraccount = Account(current_user.user_id)
+accounts = useraccount.getAccounts()
+useraccount.getBalance(accounts)
