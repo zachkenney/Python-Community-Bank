@@ -83,13 +83,40 @@ class Account:
         accounts = cur.fetchone()
         return accounts
 
-    def getBalance(self, accounts):
+    def newAccount(self, user_id):
+        self.user_id = user_id
+        cur = conn.cursor()
+        while True:
+            account_type = input('Select account type: \n \
+                1. Checking \n \
+                2. Savings \n \
+                > ')
+
+            if account_type == '1':
+                account_type = 'Checking'
+                print('Checking account created.')
+                break
+            elif account_type == '2':
+                account_type = 'Savings'
+                print('\nSavings account created')
+                break
+            else:
+                print('\nInvalid selection.')
+
+        sql_account = 'INSERT INTO bank.accounts (user_id, account_type, balance) VALUES (%s, %s, %s);' # Also setting up user on the accounts table
+        data_account = (user_id, account_type, 0) # passing in the previously retrieved Id to pass in as FK. For now just making this checking for $0
+        cur.execute(sql_account, data_account)
+        conn.commit()
+
+    def getBalance(self, account_id, accounts):
+        # Need to add ability to select from all accounts associated with customer
         account_type = accounts[1]
         account_amount = accounts[2]
 
         print(f'Your {account_type} account balance is {account_amount}.')
 
     def updateBalance(self, accounts, amount):
+        # Need to add ability for customer to select what account they're updating
         cur = conn.cursor()
         account_id = accounts[0]
         balance = 'SELECT sum(amount) FROM bank.transactions WHERE account_id = %s;'
@@ -130,7 +157,8 @@ def accountMenu(current_user):
         1. Check balance \n \
         2. Deposit funds \n \
         3. Withdraw funds \n \
-        4. Exit \n \
+        4. New Account \n \
+        5. Exit \n \
         > ')
     
         if function_select == '1':
@@ -142,6 +170,8 @@ def accountMenu(current_user):
             useraccount.withdraw(accounts)
             accounts = useraccount.getAccounts()
         elif function_select == '4':
+            useraccount.newAccount(current_user.user_id)
+        elif function_select == '5':
             break
         else:
             print('Invalid selection.')
