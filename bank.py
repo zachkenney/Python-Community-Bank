@@ -31,38 +31,44 @@ class createUser:
         self.username = input('Pick a username: \n') # Pick username, save it as username
         self.password = input('Pick a password: \n') # Pick password, save it as password
         cur = conn.cursor() # Create a cursor using psycopg2
-        sql_user = "INSERT INTO bank.users (first_name, last_name, username, pwd) VALUES (%s, %s, %s, %s) RETURNING id;" # Entering all the collected variables into the db
+        sql_user = 'INSERT INTO bank.users (first_name, last_name, username, pwd) VALUES (%s, %s, %s, %s) RETURNING id;' # Entering all the collected variables into the db
         data_user = (self.first_name, self.last_name, self.username, self.password) # Passing in the variables separately.
         # If I read the psycopg2 docs right, this is the safest way to do this.
         cur.execute(sql_user, data_user) # Executing
         user_id = cur.fetchone()[0] # Grabbing the id since I made it SERIAL primary key
 
-        sql_account = "INSERT INTO bank.accounts (user_id, account_type, balance) VALUES (%s, %s, %s);" # Also setting up user on the accounts table
+        sql_account = 'INSERT INTO bank.accounts (user_id, account_type, balance) VALUES (%s, %s, %s);' # Also setting up user on the accounts table
         data_account = (user_id, "Checking", 0) # passing in the previously retrieved Id to pass in as FK. For now just making this checking for $0
         cur.execute(sql_account, data_account)
 
         conn.commit()
 
-
 def logIn():
     u = input('Please enter your username: \n') # Grabbing username
     p = input('Please enter your password: \n') # Grabbing password
+    
     try:
         cur = conn.cursor()
-        cur.execute('SELECT id from bank.users where username = %s;', (u, ))
-        userId = cur.fetchone()[0] # Querying DB for given username and getting id for that row
-        
-        cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
-        userpass = cur.fetchone()[0] # Querying DB for given password and getting id for that row
+        command = 'SELECT id, username, first_name, last_name FROM bank.users WHERE username = %s and pwd = %s;'
+        data =  (u, p)
+        cur.execute(command, data)
+        result = cur.fetchone() # Querying DB for given username and getting id for that row
 
-        if userpass == userId: # If username and password exist and are on same row they should have same id
-            print('\nWelcome back!') 
+        if result:
+            print('Login Successful!')
+            return User(result[0], result[1], result[2], result[3])
 
         cur.close()
         conn.close()
     except:
         print('Username and password not found.')
 
+class User:
+    def __init__(self, id, username, first_name, last_name):
+        self.id = id
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
 
 class Account:
     # Class for getting account information
