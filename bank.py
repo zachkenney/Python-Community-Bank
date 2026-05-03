@@ -17,6 +17,7 @@ def connectionVerify():
     cursor = conn.cursor()
     cursor.execute("SELECT version()")
     print(cursor.fetchone())
+
 # Class used for creating users.
 class createUser:
     def __init__(self):
@@ -42,33 +43,29 @@ class createUser:
 
         conn.commit()
 
-class logIn:
-    def __init__(self):
-        pass
 
-    def getUser(self):
-        u = input('Please enter your username: \n') # Grabbing username
-        p = input('Please enter your password: \n') # Grabbing password
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT id from bank.users where username = %s;', (u, ))
-            self.userId = cur.fetchone()[0] # Querying DB for given username and getting id for that row
-            
-            cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
-            self.userpass = cur.fetchone()[0] # Querying DB for given password and getting id for that row
+def logIn():
+    u = input('Please enter your username: \n') # Grabbing username
+    p = input('Please enter your password: \n') # Grabbing password
+    try:
+        cur = conn.cursor()
+        cur.execute('SELECT id from bank.users where username = %s;', (u, ))
+        userId = cur.fetchone()[0] # Querying DB for given username and getting id for that row
+        
+        cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
+        userpass = cur.fetchone()[0] # Querying DB for given password and getting id for that row
 
-            if self.userpass == self.userId: # If username and password exist and are on same row they should have same id
-                print('\nWelcome back!') 
+        if userpass == userId: # If username and password exist and are on same row they should have same id
+            print('\nWelcome back!') 
 
-            cur.close()
-            conn.close()
-        except:
-            print('Username and password not found.')
+        cur.close()
+        conn.close()
+    except:
+        print('Username and password not found.')
 
 
 class Account:
     # Class for getting account information
     pass
 
-zach = logIn()
-zach.getUser()
+logIn()
