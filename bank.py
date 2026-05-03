@@ -44,24 +44,25 @@ class createUser:
         conn.commit()
 
 def logIn():
-    u = input('Please enter your username: \n') # Grabbing username
-    p = input('Please enter your password: \n') # Grabbing password
-    
-    try:
-        cur = conn.cursor()
-        command = 'SELECT id, username, first_name, last_name FROM bank.users WHERE username = %s and pwd = %s;'
-        data =  (u, p)
-        cur.execute(command, data)
-        result = cur.fetchone() # Querying DB for given username and getting id for that row
+    while True:
+        u = input('\nPlease enter your username: \n') # Grabbing username
+        p = input('Please enter your password: \n') # Grabbing password    
+        try:
+            cur = conn.cursor()
+            command = 'SELECT id, username, first_name, last_name FROM bank.users WHERE username = %s and pwd = %s;'
+            data =  (u, p)
+            cur.execute(command, data)
+            result = cur.fetchone() # Querying DB for given username and getting id for that row
+            cur.close()
 
-        if result:
-            print('Login Successful!')
-            return User(result[0], result[1], result[2], result[3])
+            if result:
+                print('Login Successful!')
+                return User(result[0], result[1], result[2], result[3])
 
-        cur.close()
-
-    except:
-        print('Username and password not found.')
+            else:
+                print('Username or password incorrect. Please try again.')
+        except Exception as e:
+            print(e)
 
 class User:
     def __init__(self, user_id, username, first_name, last_name):
@@ -173,4 +174,4 @@ cli()
 
 # Things To Do
 # 1. Input validation on the deposit/withdraw amounts
-# 2. Login failure handling
+# 2. Login failure handling X
