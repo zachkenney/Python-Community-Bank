@@ -47,17 +47,17 @@ class logIn:
         pass
 
     def getUser(self):
-        u = input('Please enter your username: \n')
-        p = input('Please enter your password: \n')
+        u = input('Please enter your username: \n') # Grabbing username
+        p = input('Please enter your password: \n') # Grabbing password
         try:
             cur = conn.cursor()
             cur.execute('SELECT id from bank.users where username = %s;', (u, ))
-            self.userId = cur.fetchone()[0]
+            self.userId = cur.fetchone()[0] # Querying DB for given username and getting id for that row
             
             cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
-            self.userpass = cur.fetchone()[0]
+            self.userpass = cur.fetchone()[0] # Querying DB for given password and getting id for that row
 
-            if self.userpass == self.userId:
+            if self.userpass == self.userId: # If username and password exist and are on same row they should have same id
                 print('\nWelcome back!') 
 
             cur.close()
