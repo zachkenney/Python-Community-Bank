@@ -1,3 +1,5 @@
+CREATE SCHEMA schema_name;
+
 create table bank.users (
 	id SERIAL primary key,
 	first_name varchar(50) not null,
