@@ -85,7 +85,6 @@ class Account:
         return accounts
 
     def newAccount(self, user_id):
-        self.user_id = user_id
         cur = conn.cursor()
         # Prompting user to select what account they want
         while True:
@@ -122,7 +121,7 @@ class Account:
         # Need to add ability for customer to select what account they're updating
         cur = conn.cursor()
         
-        print('\nSelect an account:')
+        print('\nSelect an account:') # Selector for the user's accounts
         for i, account in enumerate(accounts):
             print(f'{i + 1}. {account[1]}')
     
@@ -159,7 +158,7 @@ class Account:
 
     def withdraw(self, accounts):
         try:
-            amount = float('-' + input('How much are you withdrawing? \n > '))
+            amount = float('-' + input('How much are you withdrawing? \n > ')) # Transorming input to float then also making it negative
         except ValueError:
             print('Please enter a valid number.')
             return
@@ -171,9 +170,9 @@ def accountMenu(current_user):
 
     while True:
         function_select = input('\nWhat would you like to do today? \n \
-        1. Check balance \n \
-        2. Deposit funds \n \
-        3. Withdraw funds \n \
+        1. Check Balance \n \
+        2. Deposit Funds \n \
+        3. Withdraw Funds \n \
         4. New Account \n \
         5. Exit \n \
         > ')
@@ -218,3 +217,4 @@ def cli():
             print('Invalid selection.')
 
 cli()
+conn.close()
