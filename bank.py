@@ -94,32 +94,31 @@ class Account:
         account_id = accounts[0]
         balance = 'SELECT sum(amount) FROM bank.transactions WHERE account_id = %s;'
         cur.execute(balance, (account_id, ))
-        current_balance = cur.fetchone()[0]
+        current_balance = cur.fetchone()[0] or 0 # Return 0 if nothing found for account
 
 
-        if int(current_balance) + int(amount) < 0:
+        if float(current_balance) + float(amount) < 0:
             print('Insuffienct funds!')
         else:
             insert = 'INSERT INTO bank.transactions (account_id, amount) VALUES (%s, %s);'
             values = (account_id, amount)
             cur.execute(insert, values)
             
-            new_balance = int(current_balance) + int(amount)
+            new_balance = float(current_balance) + float(amount)
             update = 'UPDATE bank.accounts SET balance = %s WHERE id = %s;'
             data = (new_balance, account_id)
             cur.execute(update, data)
             conn.commit()
         
-        conn.commit()
         cur.close()
-
+        
     def deposit(self, accounts):
-        amount = int(input('How much are you depositing? \n > '))
+        amount = float(input('How much are you depositing? \n > '))
         self.updateBalance(accounts, amount)
         
 
     def withdraw(self, accounts):
-        amount = int('-' + input('How much are you withdrawing? \n > '))
+        amount = float('-' + input('How much are you withdrawing? \n > '))
         self.updateBalance(accounts, amount)
 
 def accountMenu(current_user):
@@ -175,3 +174,4 @@ cli()
 # Things To Do
 # 1. Input validation on the deposit/withdraw amounts
 # 2. Login failure handling X
+# 3. Add ability for users to create new accounts (ie, additional checking or savings)
