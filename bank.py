@@ -42,6 +42,30 @@ class createUser:
 
         conn.commit()
 
+class logIn:
+    def __init__(self):
+        pass
+
+    def getUser(self):
+        u = input('Please enter your username: \n')
+        p = input('Please enter your password: \n')
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT id from bank.users where username = %s;', (u, ))
+            self.userId = cur.fetchone()[0]
+            
+            cur.execute('SELECT id from bank.users where pwd = %s;', (p, ))
+            self.userpass = cur.fetchone()[0]
+
+            if self.userpass == self.userId:
+                print('\nWelcome back!') 
+
+            cur.close()
+            conn.close()
+        except:
+            print('Username and password not found.')
+
+
 class Account:
     # Class for getting account information
     pass
