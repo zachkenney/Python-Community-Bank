@@ -12,3 +12,9 @@ CREATE TABLE bank.accounts (
     account_type varchar(16) not null,
     balance decimal(10,2) not null
 );
+
+create table transactions (
+    id SERIAL PRIMARY KEY,
+    account_id INT REFERENCES bank.accounts(id),
+    amount DECIMAL not null,
+);
