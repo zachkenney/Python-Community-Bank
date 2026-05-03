@@ -173,5 +173,4 @@ cli()
 
 # Things To Do
 # 1. Input validation on the deposit/withdraw amounts
-# 2. 
-#
+# 2. Login failure handling
