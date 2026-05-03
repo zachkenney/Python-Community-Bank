@@ -26,7 +26,7 @@ class createUser:
     def userMake(self): # Creates a user
         self.first_name = input('Please enter your first name: \n') # Saving as first name
         self.last_name = input('Please enter your last name: \n') # Saving as last name
-        print(f'Welcome {self.first_name} {self.last_name}!')
+        print(f'\nWelcome {self.first_name} {self.last_name}!\n')
         
         self.username = input('Pick a username: \n') # Pick username, save it as username
         self.password = input('Pick a password: \n') # Pick password, save it as password
@@ -76,28 +76,102 @@ class Account:
 
     def getAccounts(self):
         cur = conn.cursor()
-        account_query = 'SELECT account_type, balance FROM bank.accounts WHERE user_id = %s;'
+        account_query = 'SELECT id, account_type, balance FROM bank.accounts WHERE user_id = %s;'
         data = (self.user_id, )
         cur.execute(account_query, data)
         accounts = cur.fetchone()
         return accounts
 
     def getBalance(self, accounts):
-        account_type = accounts[0]
-        account_amount = accounts[1]
+        account_type = accounts[1]
+        account_amount = accounts[2]
 
         print(f'Your {account_type} account balance is {account_amount}.')
 
-    def deposit():
-        def __init__(self, accounts):
-            pass
+    def updateBalance(self, accounts, amount):
+        cur = conn.cursor()
+        account_id = accounts[0]
+        balance = 'SELECT sum(amount) FROM bank.transactions WHERE account_id = %s;'
+        cur.execute(balance, (account_id, ))
+        current_balance = cur.fetchone()[0]
 
 
-    def withdraw():
-        def __init__(self):
-            pass
+        if int(current_balance) + int(amount) < 0:
+            print('Insuffienct funds!')
+        else:
+            insert = 'INSERT INTO bank.transactions (account_id, amount) VALUES (%s, %s);'
+            values = (account_id, amount)
+            cur.execute(insert, values)
+            
+            new_balance = int(current_balance) + int(amount)
+            update = 'UPDATE bank.accounts SET balance = %s WHERE id = %s;'
+            data = (new_balance, account_id)
+            cur.execute(update, data)
+            conn.commit()
+        
+        conn.commit()
+        cur.close()
 
-current_user = logIn()
-useraccount = Account(current_user.user_id)
-accounts = useraccount.getAccounts()
-useraccount.getBalance(accounts)
+    def deposit(self, accounts):
+        amount = int(input('How much are you depositing? \n > '))
+        self.updateBalance(accounts, amount)
+        
+
+    def withdraw(self, accounts):
+        amount = int('-' + input('How much are you withdrawing? \n > '))
+        self.updateBalance(accounts, amount)
+
+def accountMenu(current_user):
+    useraccount = Account(current_user.user_id)
+    accounts = useraccount.getAccounts()
+
+    while True:
+        function_select = input('\nWhat would you like to do today? \n \
+        1. Check balance \n \
+        2. Deposit funds \n \
+        3. Withdraw funds \n \
+        4. Exit \n \
+        > ')
+    
+        if function_select == '1':
+            useraccount.getBalance(accounts)
+        elif function_select == '2':
+            useraccount.deposit(accounts)
+            accounts = useraccount.getAccounts()
+        elif function_select == '3':
+            useraccount.withdraw(accounts)
+            accounts = useraccount.getAccounts()
+        elif function_select == '4':
+            break
+        else:
+            print('Invalid selection.')
+
+def cli():
+    print('\nWELCOME TO PYTHON COMMUNITY BANK\n')
+    
+    while True:
+        user_start = input('Are you a new member or an existing member?\n \
+        1. New member\n \
+        2. Existing member\n \
+        > ')
+
+        if user_start == '1':
+            newUser = createUser()
+            newUser.userMake()
+            current_user = logIn()
+            accountMenu(current_user)
+
+            break
+        elif user_start == '2':
+            current_user = logIn()
+            accountMenu(current_user)
+            break
+        else:
+            print('Invalid selection.')
+
+cli()
+
+# Things To Do
+# 1. Input validation on the deposit/withdraw amounts
+# 2. 
+#
